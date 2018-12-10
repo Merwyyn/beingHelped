@@ -1,0 +1,194 @@
+#################
+#    IMPORTANT  #
+#################
+Rien n'est supprimé de la DB => Toujours mettre un champ "deleted" en 1/0. Cela permet de garder des infos pour les réservations ect..
+
+
+
+- Création d'un compte.
+    Requis :
+        - Email
+        - Nom
+        - Prénom
+        - Password
+    Test à effectuer :
+        - Mauvais email => erreur
+        - Email déjà utilisé => erreur
+        - Des champs vides => erreur
+        - Compte désactivé => erreur
+        - Email unique, et champs rempli => succès
+
+- Valider son compte
+    Requis :
+        - S'être inscrit
+    Test à effectuer :
+        Se connecter sans valider le compte => erreur
+        S'inscrire avec les même ID => erreur
+        Valider le compte puis se connecter => succès
+
+- Mot de passe oublié
+    Requis :
+        - Être déconnecté
+    Test à effectuer :
+        - Demander un nouveau mot d epasse, puis se connecter avec l'ancien => succès
+        - Idem puis cliquer sur le lien => erreur car connecté
+        - Idem puis se déconnecté puis cliquer sur le lien => erreur car la clé est désactivé
+        - Demander nouveau mot de passe puis cliquer sur le lien du mail puis se connecter avec l'ancien mot de passe => succès (lien désactivé)
+        - Demander un nouveau mot de passe, cliquer sur le lien du mail et modifier le mot de passe.
+        - Re-utiliser le lien => erreur car désactivé
+
+- Connexion à un compte
+    Requis :
+        - Email
+        - Password
+        - Compte validé
+        - Compte non bloqué
+    Test à effectuer :
+        - Combinaison d'un mail et d'un mot de passe erroné => erreur
+        - Email et mdp valide mais compte non validé => erreur
+        - Email et mdp valide mais compte désactivé => erreur
+        - Email et mot de passe valide => connexion
+
+- Mon compte
+    Requis :
+        - Être connecté
+   Test à effectuer :
+        - Joindre la page sans être connecté => redirection
+
+    Fonctionnalités :
+        - Modifier son mot de passe
+            Requis :
+                - Mot de passe atm
+                - Nouveau mot de passe
+                - Confirmation
+           Test à effectuer :
+            - Mauvais mot de passe atm => erreur
+            - Mot de passe et confirmation != => erreur
+            - Mot de passe atm identique nouveau mot de passe => erreur
+            - SINON => ok
+        - Remplir son profil
+            Requis :
+                - adresse
+                - code_postal
+                - ville
+                - pays
+                - telephone
+                - sexe
+                - date_naissance
+            Test à effectuer :
+                - Combinaison adresse+code_postal+ville+pays inexistant => erreur
+                - Telephone mauvais format => erreur
+                - Sexe, choix autre que F / H / N.D => erreur
+                - date_naissance trop vieux ou trop récent => erreur (Vieux > 110ans ? récent <= 3ans)
+                - Envoyer sans remplir aucun form => erreur
+                - Sinon => good
+        - Voir sa cagnotte
+        - Voir ses articles (biens/services)
+            Requis :
+                Avoir déjà proposé des articles
+            Test à effectuer :
+                Si pas d'articles => message
+                Sinon => listing
+        - Voir ses réservations
+            Requis :
+                Avoir déjà réservé
+            Test à effectuer :
+                Si pas de réservations => message
+                Sinon => listing
+
+
+- Proposer un article
+    Requis :
+        - Être connecté
+        - Type (service/bien)
+        - Nom
+        - Descriptions
+        - Mots clés
+        - Prix
+        #BIENS#
+        - photos
+        - quantité
+        #SERVICE#
+        - horaires
+    Test à effectuer :
+        - Accéder à la page sans être connecté => redirection
+        - Au moins 1 champ vide => erreur
+        - Mots clés non inexistant => erreur
+        - Autre type que service/bien => erreur
+        - Compte non autorisé à créer => erreur
+        - Photos trop lourde (à définir) => erreur
+        - quantité non numérique ou < 1 => erreur
+        - horaires nonvalide => erreur
+        - SINON => succès
+
+- Desactiver un article
+    Requis :
+        - Être connecté
+        - Être admin OU propriétaire de l'article
+        - Avoir un article disponible
+    Test à effectuer :
+        - Accéder à la page sans être connecté => redirection
+        - Ne pas être admin et propriétaire de l'article => erreur
+        - Désactiver un article déjà désactivé => erreur
+        - SINON => succès (les réservations antécédentes sont toujours valide !)
+
+- Suppression d'un article
+    Requis :
+        Idem qu'au dessus sauf que l'article peut être désactivé
+    Test à effectuer :
+         - Accéder à la page sans être connecté => redirection
+        - Ne pas être admin et propriétaire de l'article => erreur
+        - Supprimer un article déjà désactivé => succès
+        - SINON => succès (les réservations antécédentes sont toujours valide ?)
+
+- Réservation d'un article
+    Requis :
+        - Être connecté
+        - Avoir le droit de réserver
+        - Avoir un article disponible (non désactivé / non supprimé)
+    Test à effectuer :
+        - Date antérieure => erreur
+        - Durée négative => erreur
+        #SERVICE#
+            - Réserver en dehors de la tranche horaire autorisé => erreur
+            - Réserver pendant la tranche horaire mais avec une durée qui sort de l'horaire => erreur
+            - Réserver en dehors de la tranche horaire maisa vec une durée qui revient dedans => erreur
+        # BIEN #
+            - Réserver un bien alors qu'il n'y a plus de "quantité" disponible (Ex : Aspirateur *3 => 3 sont djéà réservés et on essaye d'en réserver un autre) => erreur
+
+        EN CAS DE SUCCES : envoie vers la page de paiement
+
+
+- Page de paiement
+    Requis : ?
+    Test à effectuer :
+        Valider un paiement => redirection et achat effectué
+        Paiement erreur => redirecteur et achat non effectué
+        Paiement annulé => idem
+
+- Recherche d'un article
+    Requis :
+    Test à effectuer :
+        Les articles désactivés / supprimés ne doivent pas s'afficher
+        Rechercher par mots clefs non existant => listing vide
+        Rechercher par mots clefs existant => listing des articles correspondant
+
+- Listing articles :
+    Requis :
+    Test à effectuer :
+        Les articles désactivés / supprimés ne doivent pas s'afficher
+
+- Notifications
+    - #TODO définir ce qu'est un désiquilibre#
+
+- Désactiver un compte
+    Requis :
+        ëtre connecté et admin
+    Test à effectuer :
+        Désactiver un compte désactivé => erreur
+        Désactiver un compte admin => avertissement => succès
+        Désactiver un compte client => succès
+        ----
+        Désactiver temporairement puis essayer de se connecter après la durée => succès
+        Désactiver définitivement puis essayer de se connecter => erreur
+
