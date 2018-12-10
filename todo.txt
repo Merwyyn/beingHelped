@@ -192,3 +192,6 @@ Rien n'est supprimé de la DB => Toujours mettre un champ "deleted" en 1/0. Cela
         Désactiver temporairement puis essayer de se connecter après la durée => succès
         Désactiver définitivement puis essayer de se connecter => erreur
 
+
+- Amélioration
+    - Se souvenir de moi (Connexion)
