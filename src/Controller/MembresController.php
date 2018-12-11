@@ -3,16 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\Membres;
+use App\Form\MembresType;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+
 class MembresController extends AbstractController
 {
     /**
-     * @Route("/{_locale}/membres/login", name="login_membre", methods={"GET"}, requirements={"_locale" = "en|fr"})
+     * @Route("/{_locale}/membres/login", name="login_membre", methods={"GET"}, requirements={"_locale" = "en|fr"}, defaults={"_locale"="fr"})
      */
     public function login(Request $request, UserPasswordEncoderInterface $passwordEncoder,TranslatorInterface $translator){
         $email=$request->query->get("email");
@@ -44,5 +47,18 @@ class MembresController extends AbstractController
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder,TranslatorInterface $translator){
         $membre = new Membres();
         $form = $this->createForm(MembresType::class, $membre);
+        $form->submit($request->request->all());
+        if (!$form->isSubmitted() || !$form->isValid()){
+            $response=["registered" => false, "message" => "erreur", "data" => $form->getData(), "post" => $_POST, "request" => $request->request->all(), "form" => $form->getConfig()];
+        } else {
+            $membre->setPassword($passwordEncoder->encodePassword($membre, $membre->getPlainPassword()));
+
+            $entityManager= $this->getDoctrine()->getManager();
+            $entityManager->persist($membre);
+            $entityManager->flush();
+
+            $response=["registered" => true, "message" => $translator->trans("You're now registered. Please use the link on the mail we just sent to confirm your account.")];
+        }
+        return $this->json([$response]);
     }
 }

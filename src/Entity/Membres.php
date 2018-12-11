@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 define("BLOCKED_FLAG", 1);
@@ -31,6 +32,8 @@ class Membres extends EntityRepository implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=80, nullable=false, unique=true)
+     * @Assert\NotBlank()
+     * @Assert\Email()
      */
     private $email;
 
@@ -85,14 +88,14 @@ class Membres extends EntityRepository implements UserInterface
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="nom", type="string", length=40, nullable=false)
      */
     private $nom;
 
     /**
      * @var string
-     *
+     * @Assert\NotBlank()
      * @ORM\Column(name="prenom", type="string", length=40, nullable=false)
      */
     private $prenom;
@@ -145,6 +148,12 @@ class Membres extends EntityRepository implements UserInterface
      * @ORM\Column(name="date_naissance", type="time", nullable=false)
      */
     private $dateNaissance;
+
+    /**
+     * @Assert\NotBlank
+     * @Assert\Length(max=4096)
+     */
+    private $plainPassword;
 
     /**
      * Membres constructor.
@@ -377,6 +386,23 @@ class Membres extends EntityRepository implements UserInterface
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * @param mixed $plainPassword
+     */
+    public function setPlainPassword($plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
 
     public function getSalt()
     {
